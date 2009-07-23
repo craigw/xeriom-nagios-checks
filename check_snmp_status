@@ -1,0 +1,13 @@
+#! /bin/bash
+
+HOST=$1
+SUMMARY_OID=$2
+STATUS_OID=$3
+
+SUMMARY=`snmpget -v 1 -c public $HOST $SUMMARY_OID |cut -f 2- -d '=' |cut -f 2- -d ':' |sed -e's/^\ *"//' -e's/"\ *$//'`
+STATUS=`snmpget -v 1 -c public $HOST $STATUS_OID |cut -f 2- -d '=' |cut -f 2- -d ':'`
+
+echo $SUMMARY
+[ -z "$STATUS" -o -n "`echo $STATUS | tr -d '[0-9]'`" ] && exit 2
+[ $STATUS -gt 2 ] && exit 2
+exit $STATUS
