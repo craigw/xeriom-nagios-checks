@@ -1,0 +1,40 @@
+Xeriom Nagios Checks
+====================
+
+Checks that I couldn't find elsewhere and I ended up writing.
+
+Check SNMP
+----------
+
+There are a lot of SNMP checks... but all of the ones I could find assume
+that the configuration for critical / warning values will be done on the
+monitoring host. I don't want to change the Nagios configuration every time
+a client re-evaluates their monitoring requirements - let's give them control.
+
+check_snmp_status takes three arguments: the hostname, the OID to look for a
+one-line summary and the OID to look for the status code. It queries the
+public (SNMPv1) community for the OIDs and passes the values straight back to
+Nagios.
+
+Here's how I use it to monitor my hosts in conjunction with the SNMP Agent for
+mounts (available here: http://github.com/craigw/xeriom-nagios-snmp-agents).
+
+    define command {
+      command_name    check_snmp_status
+      command_line    /usr/lib/xeriom-nagios-checks/check_snmp_status $HOSTADDRESS$ $ARG1$ $ARG2$
+    }
+
+    define service {
+      hostgroup_name            xeriom_networks-hosts
+      service_description       MOUNT /
+      check_command             check_snmp_status!.1.3.6.1.4.1.32919.4.1.1.1.1.1.7!.1.3.6.1.4.1.32919.4.1.1.1.1.1.8
+      use                       generic-service
+      notification_interval     0 ; set > 0 if you want to be renotified
+      contact_groups            admins,xeriom_irc
+    }
+
+
+Authors
+-------
+
+Written by Craig R Webster <http://barkingiguana.com/~craig>
