@@ -34,6 +34,33 @@ mounts (available here: http://github.com/craigw/xeriom-nagios-snmp-agents).
     }
 
 
+Check Xen Domain Host
+---------------------
+
+It can be pretty easy to lose track of the host that a domU is running on if
+it's moved around a few times - especially when you're looking after many
+hundreds of domUs.
+
+check_xen_domain_host takes one argument: the host that the domain /should/
+be running on.
+
+Here's how I use it in conjunction with the SNMP Agent for Xen Store
+(available here: http://github.com/craigw/xeriom-nagios-snmp-agents).
+
+    define command {
+      command_name    check_xen_domain_host
+      command_line    /usr/lib/xeriom-nagios-checks/check_xen_domain_host $HOSTNAME$ $ARG1$.vm.xeriom.net
+    }
+
+    define service {
+      hostgroup_name            xeriom-vm-host-NN6-virtual_machines
+      service_description       PHYSICAL HOST
+      check_command             check_xen_domain_host!xeriom-vm-host-NN.core.neriom.net
+      use                       generic-service
+      notification_interval     0 ; set > 0 if you want to be renotified
+      contact_groups            admins,xeriom_irc
+    }
+
 Authors
 -------
 
