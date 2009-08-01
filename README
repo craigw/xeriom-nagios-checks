@@ -74,14 +74,14 @@ Here's how I use it in conjunction with the SNMP Agent for Xen Configuation
 (available here: http://github.com/craigw/xeriom-nagios-snmp-agents).
 
     define command {
-      command_name    check_xen_domain_host
+      command_name    check_xen_domain_shell_user
       command_line    /usr/lib/xeriom-nagios-checks/check_xen_domain_host $HOSTNAME$ $ARG1$.vm.xeriom.net $ARG2$
     }
 
     define service {
       hostgroup_name            USERNAME_HERE-virtual_machines
       service_description       ADMIN SHELL USER
-      check_command             check_xen_domain_host!xeriom-vm-host-NN.core.neriom.net!USERNAME_HERE
+      check_command             check_xen_domain_shell_user!xeriom-vm-host-NN.core.neriom.net!USERNAME_HERE
       use                       generic-service
       notification_interval     0 ; set > 0 if you want to be renotified
       contact_groups            admins,xeriom_irc
