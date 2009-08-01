@@ -75,7 +75,7 @@ Here's how I use it in conjunction with the SNMP Agent for Xen Configuation
 
     define command {
       command_name    check_xen_domain_shell_user
-      command_line    /usr/lib/xeriom-nagios-checks/check_xen_domain_host $HOSTNAME$ $ARG1$.vm.xeriom.net $ARG2$
+      command_line    /usr/lib/xeriom-nagios-checks/check_xen_domain_shell_user $HOSTNAME$ $ARG1$.vm.xeriom.net $ARG2$
     }
 
     define service {
