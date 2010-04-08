@@ -11,7 +11,16 @@ IGNORED_IFS = [
   /^vnet\d+$/,
   /^eth\d+$/,
   /^peth\d+$/,
-  /^lo$/
+  /^lo$/,
+  /^bond\d+$/,
+  /^dummy\d+$/,
+  /^eql$/,
+  /^ipddp\d+$/,
+  /^teql\d+$/,
+  /^tunl\d+$/,
+  /^gre\d+$/,
+  /^irlan\d+$/,
+  /^xenbr\d+$/,
 ]
 
 vif_names = []
