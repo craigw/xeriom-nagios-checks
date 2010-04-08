@@ -1,0 +1,39 @@
+#! /usr/bin/env ruby
+
+require 'rubygems'
+require 'snmp'
+
+HOSTNAME = ARGV[0].strip
+WANTED_NAMED_VIFS = ARGV[1].strip.split(/,/)
+IGNORED_IFS = [
+  /^veth\d+$/,
+  /^vif\d+\.\d+$/,
+  /^vnet\d+$/,
+  /^eth\d+$/,
+  /^peth\d+$/,
+  /^lo$/
+]
+
+vif_names = []
+SNMP::Manager.open(:Host => HOSTNAME) do |manager|
+  manager.walk(["ifDescr"]) do |name|
+    vif_name = name[0].value.to_s
+    if ! IGNORED_IFS.any? { |ignore| ignore =~ vif_name }
+      vif_names << vif_name
+    end
+  end
+end
+
+extra_vifs = vif_names - WANTED_NAMED_VIFS
+if extra_vifs.any?
+  puts "VIFLIST CRITICAL: Extra VIF(s): #{extra_vifs.join(', ')}"
+  exit 2
+end
+
+missing_vifs = WANTED_NAMED_VIFS - vif_names
+if missing_vifs.any?
+  puts "VIFLIST CRITICAL: Missing VIF(s): #{missing_vifs.join(', ')}"
+  exit 2
+end
+
+puts "VIFLIST OKAY: #{vif_names.join(', ')}"
