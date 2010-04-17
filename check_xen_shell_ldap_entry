@@ -1,0 +1,54 @@
+#! /usr/bin/env ruby
+
+require 'rubygems'
+require 'net/ldap'
+
+uid = ARGV[0].to_s
+host = ARGV[1].to_s
+# Make sure the ldap.secret file is readable only by root.
+password = File.read("/etc/ldap.secret").strip
+
+ldap = Net::LDAP.new :host => 'ldap.xeriom.net'
+ldap.authenticate 'cn=admin,dc=xeriom,dc=net', password
+if !ldap.bind
+  puts "UNKNOWN: Could not bind to LDAP server"
+  exit 3
+end
+
+ldap_base = "dc=xeriom,dc=net"
+ldap_people = "ou=people,#{ldap_base}"
+ldap_uid = "uid=#{uid},#{ldap_people}"
+uid_filter = Net::LDAP::Filter.eq('uid', uid)
+records = ldap.search(:base => ldap_base,
+                      :filter => uid_filter)
+
+if records.empty?
+  puts "CRITICAL: Could not find #{ldap_uid}"
+  exit 2
+end
+
+if records.size > 1
+  puts "CRITICAL: #{records.size} entries found for #{ldap_uid}"
+  exit 2
+end
+
+person = records[0]
+
+if !person.host.include?(host)
+  puts "CRITICAL: #{ldap_uid} can't access #{host}"
+  exit 2
+end
+
+ldap_groups = "ou=groups,#{ldap_base}"
+ldap_gid = "cn=xen,#{ldap_groups}"
+gid_filter = Net::LDAP::Filter.eq('memberUid', uid)
+groups = ldap.search(:base => ldap_base,
+                     :filter => gid_filter)
+
+if !groups.any?{|group| group.cn.any?{|cn| cn == "xen"}}
+  puts "CRITICAL: #{uid} is not a member of #{ldap_gid}"
+  exit 2
+end
+
+puts "OKAY: #{ldap_uid} is a member of #{ldap_gid} on #{host}"
+exit 0
