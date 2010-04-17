@@ -46,7 +46,7 @@ groups = ldap.search(:base => ldap_base,
                      :filter => gid_filter)
 
 if !groups.any?{|group| group.cn.any?{|cn| cn == "xen"}}
-  puts "CRITICAL: #{uid} is not a member of #{ldap_gid}"
+  puts "CRITICAL: #{ldap_uid} is not a member of #{ldap_gid}"
   exit 2
 end
 
